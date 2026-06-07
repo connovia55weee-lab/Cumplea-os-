@@ -1,748 +1,538 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ti, Mi Amor ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-<title>Para Ti ❤️</title>
+    <style>
+        /* ==========================================
+           1. ESTILOS GLOBALES Y VARIABLES
+           ========================================== */
+        :root {
+            --bg-gradient: radial-gradient(circle, #1a0b2e 0%, #05010d 100%);
+            --neon-pink: #ff2a74;
+            --neon-blue: #00f0ff;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-<style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+        /* Contenedor principal de fases */
+        .phase {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 24px;
+            text-align: center;
+            z-index: 10;
+        }
 
-body{
-font-family:'Poppins',sans-serif;
-background:#050816;
-overflow:hidden;
-height:100vh;
-color:white;
-}
+        .phase.active {
+            opacity: 1;
+            pointer-events: all;
+        }
 
-.screen{
-position:absolute;
-inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-padding:20px;
-transition:1.2s ease;
-}
+        /* Canvas de partículas de fondo para la Fase 3 */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
 
-.hidden{
-opacity:0;
-pointer-events:none;
-}
+        #particle-canvas.visible {
+            opacity: 1;
+        }
 
-.visible{
-opacity:1;
-pointer-events:auto;
-}
+        /* ==========================================
+           2. ESTILOS: FASE 1 - BIENVENIDA
+           ========================================== */
+        .floating-heart {
+            font-size: 80px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px var(--neon-pink));
+            margin-bottom: 20px;
+        }
 
-.bg-glow{
-position:absolute;
-width:500px;
-height:500px;
-border-radius:50%;
-background:radial-gradient(circle,#ff4fd8,#4fc3ff);
-filter:blur(180px);
-opacity:.25;
-animation:floatGlow 8s ease-in-out infinite;
-}
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
 
-@keyframes floatGlow{
-0%,100%{transform:translateY(0)}
-50%{transform:translateY(-40px)}
-}
+        h1.title-romantic {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 30px rgba(255, 42, 116, 0.5);
+            margin-bottom: 40px;
+        }
 
-/* ==========================
-FASE 1
-========================== */
+        .btn-elegant {
+            background: transparent;
+            color: #fff;
+            border: 2px solid var(--neon-blue);
+            padding: 14px 36px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            letter-spacing: 1px;
+        }
 
-.hero{
-text-align:center;
-z-index:2;
-}
+        .btn-elegant:hover {
+            background: var(--neon-blue);
+            color: #05010d;
+            box-shadow: 0 0 25px var(--neon-blue);
+            transform: scale(1.05);
+        }
 
-.heart-container{
-width:180px;
-height:180px;
-position:relative;
-margin:auto;
-margin-bottom:30px;
-animation:floatHeart 4s ease-in-out infinite;
-}
+        /* ==========================================
+           3. ESTILOS: FASE 2 - INTERACCIÓN (ESCÁNER)
+           ========================================== */
+        .instructions {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            max-width: 320px;
+            line-height: 1.5;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
 
-@keyframes floatHeart{
-0%,100%{transform:translateY(0)}
-50%{transform:translateY(-15px)}
-}
+        .interaction-area {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
 
-.big-heart{
-width:100%;
-height:100%;
-background:linear-gradient(135deg,#ff4fa5,#ff80df);
-position:absolute;
-transform:rotate(-45deg);
-border-radius:25px;
-}
+        /* Anillo de progreso SVG */
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
 
-.big-heart::before,
-.big-heart::after{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background:inherit;
-border-radius:50%;
-}
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s linear;
+            transform-origin: 50% 50%;
+        }
 
-.big-heart::before{
-top:-50%;
-left:0;
-}
+        .fingerprint-icon {
+            width: 90px;
+            height: 90px;
+            fill: #fff;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+            transition: all 0.3s ease;
+            user-select: none;
+        }
 
-.big-heart::after{
-left:50%;
-top:0;
-}
+        /* Estado activo al mantener presionado */
+        .interaction-area.pressing .fingerprint-icon {
+            fill: var(--neon-pink);
+            filter: drop-shadow(0 0 20px var(--neon-pink));
+            transform: scale(0.9);
+        }
 
-.title{
-font-family:'Dancing Script',cursive;
-font-size:3rem;
-margin-bottom:25px;
-}
+        /* Flash de pantalla para la transición explosiva */
+        .flash-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: #fff;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-out;
+        }
 
-.btn{
-border:none;
-padding:16px 35px;
-border-radius:40px;
-cursor:pointer;
-font-size:1rem;
-background:linear-gradient(135deg,#ff5fd2,#6ec8ff);
-color:white;
-font-weight:600;
-box-shadow:0 0 25px rgba(255,255,255,.2);
-transition:.3s;
-}
+        /* ==========================================
+           4. ESTILOS: FASE 3 - REVELACIÓN Y CARTA
+           ========================================== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 30px 24px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: cardEntrance 1s ease forwards;
+        }
 
-.btn:hover{
-transform:translateY(-4px);
-}
+        @keyframes cardEntrance {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-/* ==========================
-FASE 2
-========================== */
+        .letter-box {
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: left;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            padding-right: 4px;
+            max-height: 220px;
+            font-weight: 300;
+            color: #e0e0e0;
+        }
 
-.unlock-title{
-font-size:1.1rem;
-text-align:center;
-margin-bottom:35px;
-}
+        /* Personalización de scrollbar interno */
+        .letter-box::-webkit-scrollbar { width: 4px; }
+        .letter-box::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
 
-.fingerprint-wrapper{
-position:relative;
-width:220px;
-height:220px;
-display:flex;
-justify-content:center;
-align-items:center;
-}
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            background-color: var(--neon-pink);
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+        }
 
-.progress-ring{
-position:absolute;
-width:220px;
-height:220px;
-transform:rotate(-90deg);
-}
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
 
-.progress-ring circle{
-fill:none;
-stroke-width:8;
-stroke-linecap:round;
-}
+        /* Slider / Carrusel de Imágenes */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
 
-.bg-ring{
-stroke:rgba(255,255,255,.15);
-}
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-.progress{
-stroke:url(#gradient);
-stroke-dasharray:628;
-stroke-dashoffset:628;
-transition:.05s linear;
-}
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+        }
 
-.fingerprint{
-font-size:90px;
-cursor:pointer;
-user-select:none;
-transition:.2s;
-}
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.fingerprint.holding{
-transform:scale(1.15);
-filter:drop-shadow(0 0 20px #ff78e8);
-}
-
-/* ==========================
-PARTICULAS
-========================== */
-
-#particles{
-position:absolute;
-inset:0;
-pointer-events:none;
-}
-
-/* ==========================
-FASE 3
-========================== */
-
-#petals{
-position:absolute;
-inset:0;
-z-index:0;
-}
-
-.glass{
-width:min(95%,850px);
-max-height:85vh;
-overflow:auto;
-padding:25px;
-border-radius:30px;
-background:rgba(255,255,255,.08);
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.15);
-box-shadow:0 0 40px rgba(255,255,255,.1);
-z-index:2;
-}
-
-.love-title{
-font-family:'Dancing Script',cursive;
-font-size:3rem;
-text-align:center;
-margin-bottom:20px;
-}
-
-.typewriter{
-line-height:1.9;
-font-size:1rem;
-min-height:260px;
-white-space:pre-wrap;
-}
-
-.cursor{
-display:inline-block;
-width:2px;
-background:white;
-animation:blink .8s infinite;
-}
-
-@keyframes blink{
-50%{
-opacity:0;
-}
-}
-
-/* ==========================
-CARRUSEL
-========================== */
-
-.carousel{
-margin-top:35px;
-position:relative;
-}
-
-.carousel img{
-width:100%;
-border-radius:20px;
-height:320px;
-object-fit:cover;
-}
-
-.controls{
-display:flex;
-justify-content:center;
-gap:15px;
-margin-top:15px;
-}
-
-.controls button{
-width:45px;
-height:45px;
-border:none;
-border-radius:50%;
-cursor:pointer;
-background:rgba(255,255,255,.15);
-color:white;
-font-size:1.2rem;
-}
-
-@media(max-width:600px){
-
-.title{
-font-size:2.4rem;
-}
-
-.love-title{
-font-size:2.4rem;
-}
-
-.carousel img{
-height:250px;
-}
-
-}
-
-</style>
+        /* Botones del Carrusel */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+            transition: background 0.3s;
+        }
+        .carousel-btn:hover { background: rgba(0,0,0,0.7); }
+        .carousel-btn.prev { left: 10px; }
+        .carousel-btn.next { right: 10px; }
+    </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop>
-    <!-- CAMBIAR AQUÍ TU CANCIÓN -->
-    <source src="tu-cancion.mp3" type="audio/mpeg">
-</audio>
-
-<!-- =====================
-FASE 1
-===================== -->
-
-<section id="screen1" class="screen visible">
-
-<div class="bg-glow"></div>
-
-<div class="hero">
-
-<div class="heart-container">
-<div class="big-heart"></div>
-</div>
-
-<h1 class="title">Para ti, mi amor ❤️</h1>
-
-<button class="btn" id="startBtn">
-Iniciar Experiencia
-</button>
-
-</div>
-
-</section>
-
-<!-- =====================
-FASE 2
-===================== -->
-
-<section id="screen2" class="screen hidden">
-
-<div class="bg-glow"></div>
-
-<h2 class="unlock-title">
-Mantén presionada la huella para desbloquear nuestro espacio ✨
-</h2>
-
-<div class="fingerprint-wrapper">
-
-<svg class="progress-ring">
-<defs>
-<linearGradient id="gradient">
-<stop offset="0%" stop-color="#ff6ed8"/>
-<stop offset="100%" stop-color="#64cfff"/>
-</linearGradient>
-</defs>
-
-<circle class="bg-ring" cx="110" cy="110" r="100"></circle>
-<circle class="progress" cx="110" cy="110" r="100"></circle>
-</svg>
-
-<div class="fingerprint" id="fingerprint">
-💖
-</div>
-
-</div>
-
-</section>
-
-<canvas id="particles"></canvas>
-
-<!-- =====================
-FASE 3
-===================== -->
-
-<section id="screen3" class="screen hidden">
-
-<canvas id="petals"></canvas>
-
-<div class="glass">
-
-<h2 class="love-title">Nuestra Historia ❤️</h2>
-
-<div id="typedText" class="typewriter">
-<span class="cursor"></span>
-</div>
-
-<div class="carousel">
-
-<!-- CAMBIAR AQUÍ LAS FOTOS -->
-
-<img id="carouselImage"
-src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800">
-
-<div class="controls">
-<button id="prev">❮</button>
-<button id="next">❯</button>
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<script>
-
-/* =====================================
-CAMBIAR AQUÍ EL TEXTO DE LA CARTA
-===================================== */
-
-const loveLetter = `
-Mi amor...
-
-Si estás leyendo esto, es porque una vez más llegaste hasta mi corazón.
-
-Quiero que sepas que eres una de las personas más importantes que han llegado a mi vida.
-
-Gracias por cada sonrisa, por cada conversación, por cada momento compartido y por todos esos instantes que conviertes en recuerdos inolvidables.
-
-A veces las palabras parecen quedarse cortas para describir todo lo que siento por ti.
-
-Pero aun así quiero intentarlo.
-
-Me encanta tu forma de ser.
-Me encanta tu sonrisa.
-Me encanta cómo haces que incluso los días más simples se vuelvan especiales.
-
-Gracias por existir.
-Gracias por quedarte.
-Gracias por elegirme.
-
-Y si algún día dudas de cuánto te amo, vuelve a leer esta carta y recuerda que siempre tendrás un lugar especial dentro de mi corazón.
-
-Te amo infinitamente ❤️
-`;
-
-/* =====================================
-FASES
-===================================== */
-
-const screen1 = document.getElementById("screen1");
-const screen2 = document.getElementById("screen2");
-const screen3 = document.getElementById("screen3");
-
-document.getElementById("startBtn").onclick = () => {
-
-document.getElementById("bgMusic").play();
-
-screen1.classList.replace("visible","hidden");
-
-setTimeout(()=>{
-screen2.classList.replace("hidden","visible");
-},600);
-
-};
-
-/* =====================================
-DESBLOQUEO
-===================================== */
-
-const fingerprint = document.getElementById("fingerprint");
-const progress = document.querySelector(".progress");
-
-let holdTimer;
-let progressValue = 0;
-let completed = false;
-
-function startHold(){
-
-if(completed) return;
-
-fingerprint.classList.add("holding");
-
-holdTimer = setInterval(()=>{
-
-progressValue += 1.6;
-
-const offset = 628 - (628 * progressValue / 100);
-
-progress.style.strokeDashoffset = offset;
-
-if(progressValue >= 100){
-
-clearInterval(holdTimer);
-
-completed = true;
-
-explodeParticles();
-
-setTimeout(showFinalScreen,1000);
-
-}
-
-},30);
-
-}
-
-function stopHold(){
-
-if(completed) return;
-
-clearInterval(holdTimer);
-
-progressValue = 0;
-
-progress.style.strokeDashoffset = 628;
-
-fingerprint.classList.remove("holding");
-
-}
-
-fingerprint.addEventListener("mousedown",startHold);
-fingerprint.addEventListener("mouseup",stopHold);
-fingerprint.addEventListener("mouseleave",stopHold);
-
-fingerprint.addEventListener("touchstart",startHold);
-fingerprint.addEventListener("touchend",stopHold);
-
-/* =====================================
-PARTÍCULAS
-===================================== */
-
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-
-function explodeParticles(){
-
-let particles=[];
-
-for(let i=0;i<150;i++){
-
-particles.push({
-
-x:innerWidth/2,
-y:innerHeight/2,
-
-vx:(Math.random()-0.5)*12,
-vy:(Math.random()-0.5)*12,
-
-size:Math.random()*6+2,
-life:100
-
-});
-
-}
-
-function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-particles.forEach((p,index)=>{
-
-p.x+=p.vx;
-p.y+=p.vy;
-p.life--;
-
-ctx.fillStyle=`rgba(255,120,220,${p.life/100})`;
-
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-ctx.fill();
-
-if(p.life<=0){
-particles.splice(index,1);
-}
-
-});
-
-if(particles.length){
-requestAnimationFrame(animate);
-}
-
-}
-
-animate();
-
-}
-
-/* =====================================
-FASE FINAL
-===================================== */
-
-function showFinalScreen(){
-
-screen2.classList.replace("visible","hidden");
-
-setTimeout(()=>{
-
-screen3.classList.replace("hidden","visible");
-
-startTyping();
-
-startPetals();
-
-},700);
-
-}
-
-/* =====================================
-TYPEWRITER
-===================================== */
-
-function startTyping(){
-
-const container = document.getElementById("typedText");
-
-container.innerHTML="";
-
-let i=0;
-
-const cursor=document.createElement("span");
-cursor.className="cursor";
-
-function type(){
-
-if(i<loveLetter.length){
-
-container.innerHTML += loveLetter.charAt(i);
-
-i++;
-
-setTimeout(type,45);
-
-}else{
-
-container.appendChild(cursor);
-
-}
-
-}
-
-type();
-
-}
-
-/* =====================================
-CARRUSEL
-===================================== */
-
-const images = [
-
-"https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800",
-
-"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800",
-
-"https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=800",
-
-"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800"
-
-];
-
-let current = 0;
-
-const img = document.getElementById("carouselImage");
-
-function updateImage(){
-img.src = images[current];
-}
-
-document.getElementById("next").onclick=()=>{
-current=(current+1)%images.length;
-updateImage();
-}
-
-document.getElementById("prev").onclick=()=>{
-current=(current-1+images.length)%images.length;
-updateImage();
-}
-
-setInterval(()=>{
-current=(current+1)%images.length;
-updateImage();
-},4500);
-
-/* =====================================
-LLUVIA DE CORAZONES
-===================================== */
-
-function startPetals(){
-
-const canvas=document.getElementById("petals");
-const ctx=canvas.getContext("2d");
-
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-
-const hearts=[];
-
-for(let i=0;i<45;i++){
-
-hearts.push({
-
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-
-size:Math.random()*15+10,
-speed:Math.random()*1.5+0.5
-
-});
-
-}
-
-function draw(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-hearts.forEach(h=>{
-
-ctx.fillStyle="rgba(255,180,220,.7)";
-ctx.font=h.size+"px Arial";
-
-ctx.fillText("❤",h.x,h.y);
-
-h.y+=h.speed;
-
-if(h.y>canvas.height+20){
-
-h.y=-20;
-h.x=Math.random()*canvas.width;
-
-}
-
-});
-
-requestAnimationFrame(draw);
-
-}
-
-draw();
-
-}
-
-window.addEventListener("resize",()=>{
-
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-
-});
-
-</script>
-
-</body>
-</html>
+    <audio id="bg-music" src="tu-cancion.mp3" loop></audio>
+
+    <div class="flash-overlay" id="flash"></div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <div id="phase1" class="phase active">
+        <div class="floating-heart">❤️</div>
+        <h1 class="title-romantic">Para ti, mi amor</h1>
+        <button class="btn-elegant" id="btn-start">Iniciar Experiencia</button>
+    </div>
+
+    <div id="phase2" class="phase">
+        <p class="instructions">Mantén presionada la huella para desbloquear nuestro espacio ✨</p>
+        
+        <div class="interaction-area" id="interact-zone">
+            <svg class="progress-ring" width="160" height="160">
+                <circle class="progress-ring__circle" stroke="url(#neonGlow)" stroke-width="6" fill="transparent" r="72" cx="80" cy="80"/>
+                <defs>
+                    <linearGradient id="neonGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00f0ff" />
+                        <stop offset="100%" stop-color="#ff2a74" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            
+            <svg class="fingerprint-icon" viewBox="0 0 24 24">
+                <path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.83,21.43L9.83,19.5C6.94,18.44 5,15.45 5,12A7,7 0 0,1 12,5A7,7 0 0,1 19,12C19,13.1 18.1,14 17,14A2,2 0 0,1 15,12A3,3 0 0,0 12,9A3,3 0 0,0 9,12C9,15.25 11.41,18 14.5,18C15.6,18 16.63,17.56 17.4,16.84C18.94,18.34 20.17,20.16 21.03,22.18L22.87,21.4C21.9,19.16 20.5,17.15 18.82,15.46C20.71,14.45 22,12.38 22,12A10,10 0 0,0 12,2M12,11A1,1 0 0,1 13,12A1,1 0 0,1 12,13A1,1 0 0,1 11,12A1,1 0 0,1 12,11Z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div id="phase3" class="phase">
+        <div class="glass-card">
+            <div class="letter-box">
+                <span id="typewriter-text"></span><span class="typewriter-cursor"></span>
+            </div>
+
+            <div class="carousel-container">
+                <button class="carousel-btn prev" id="prev-slide">&#10094;</button>
+                <button class="carousel-btn next" id="next-slide">&#10095;</button>
+                <div class="carousel-track" id="carousel-track">
+                    <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=500" alt="Momento 1"></div>
+                    <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=500" alt="Momento 2"></div>
+                    <div class="carousel-slide"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=500" alt="Momento 3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Referencias del DOM ---
+        const phase1 = document.getElementById('phase1');
+        const phase2 = document.getElementById('phase2');
+        const phase3 = document.getElementById('phase3');
+        const btnStart = document.getElementById('btn-start');
+        const music = document.getElementById('bg-music');
+        const interactZone = document.getElementById('interact-zone');
+        const circle = document.querySelector('.progress-ring__circle');
+        const flash = document.getElementById('flash');
+        const canvas = document.getElementById('particle-canvas');
+
+        // --- Configuración Inicial Anillo de Progreso ---
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+
+        // --- TEXTO DE LA CARTA (Modifica libremente todo lo que está entre las comillas) ---
+        const cartaTexto = "Desde que llegaste a mi vida, cada momento a tu lado se ha vuelto inolvidable. Esta pequeña página es solo un reflejo de lo mucho que significas para mí y del espacio tan inmenso que ocupas en mi corazón. Gracias por tu sonrisa, por tus abrazos en los días grises y por ser mi compañera de aventuras favorita. Eres mi lugar seguro, mi felicidad diaria y la persona con la que quiero seguir construyendo los recuerdos más hermosos. Te amo hoy, mañana y siempre... ❤️";
+
+        // ==========================================
+        // PASO 1: TRANSICIÓN A FASE 2 Y REPRODUCCIÓN AUDIO
+        // ==========================================
+        btnStart.addEventListener('click', () => {
+            // Reproducir música evadiendo bloqueos del navegador
+            music.play().catch(err => console.log("Audio bloqueado o requiere interacción previa"));
+            
+            // Cambio de fase suave
+            phase1.classList.remove('active');
+            phase2.classList.add('active');
+        });
+
+        // ==========================================
+        // PASO 2: LÓGICA DE PRESIÓN SOSTENIDA (ESCÁNER)
+        // ==========================================
+        let holdTimer = null;
+        let progress = 0;
+        const holdDuration = 2500; // 2.5 Segundos requeridos
+        const updateInterval = 20;  // Fluidez cada 20ms
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function startHolding(e) {
+            e.preventDefault();
+            interactZone.classList.add('pressing');
+            
+            holdTimer = setInterval(() => {
+                progress += (updateInterval / holdDuration) * 100;
+                if (progress >= 100) {
+                    progress = 100;
+                    setProgress(100);
+                    triggerExplosion();
+                } else {
+                    setProgress(progress);
+                }
+            }, updateInterval);
+        }
+
+        function stopHolding() {
+            if (progress < 100) {
+                clearInterval(holdTimer);
+                progress = 0;
+                setProgress(0);
+                interactZone.classList.remove('pressing');
+            }
+        }
+
+        // Eventos unificados (Escritorio + Móvil táctil)
+        interactZone.addEventListener('mousedown', startHolding);
+        interactZone.addEventListener('mouseup', stopHolding);
+        interactZone.addEventListener('mouseleave', stopHolding);
+
+        interactZone.addEventListener('touchstart', startHolding, { passive: false });
+        interactZone.addEventListener('touchend', stopHolding);
+
+        // Transición explosiva hacia la fase 3
+        function triggerExplosion() {
+            clearInterval(holdTimer);
+            
+            // Destello de pantalla blanco
+            flash.style.opacity = '1';
+            
+            setTimeout(() => {
+                phase2.classList.remove('active');
+                phase3.classList.add('active');
+                canvas.classList.add('visible');
+                
+                // Iniciar efectos complementarios de la fase 3
+                initHeartsBackground();
+                startTypewriter();
+                
+                // Atenuar destello blanco
+                setTimeout(() => {
+                    flash.style.opacity = '0';
+                }, 300);
+            }, 200);
+        }
+
+        // ==========================================
+        // PASO 3: EFECTO MÁQUINA DE ESCRIBIR
+        // ==========================================
+        function startTypewriter() {
+            const textContainer = document.getElementById('typewriter-text');
+            let index = 0;
+            
+            function type() {
+                if (index < cartaTexto.length) {
+                    textContainer.innerHTML += cartaTexto.charAt(index);
+                    index++;
+                    // Pequeña variación de velocidad para naturalidad
+                    setTimeout(type, 45 + Math.random() * 20); 
+                }
+            }
+            setTimeout(type, 800); // Pequeña pausa antes de escribir la carta
+        }
+
+        // ==========================================
+        // PASO 4: CARRUSEL FOTOGRÁFICO CONTROLADO
+        // ==========================================
+        const track = document.getElementById('carousel-track');
+        const slides = Array.from(track.children);
+        const nextBtn = document.getElementById('next-slide');
+        const prevBtn = document.getElementById('prev-slide');
+        let currentSlideIndex = 0;
+
+        function updateSliderPosition() {
+            track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            updateSliderPosition();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+            updateSliderPosition();
+        });
+
+        // Transición automática del carrusel cada 4 segundos
+        setInterval(() => {
+            if (phase3.classList.contains('active')) {
+                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                updateSliderPosition();
+            }
+        }, 4000);
+
+        // ==========================================
+        // PASO 5: MOTOR DE CORAZONES FLOTANTES (CANVAS)
+        // ==========================================
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class HeartParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 12 + 6;
+                this.speedY = -(Math.random() * 1.5 + 0.5);
+                this.speedX = Math.sin(Math.random() * 2) * 0.5;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                if (this.y < -20) {
+                    this.y = canvas.height + 20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = '#ff2a74';
+                ctx.beginPath();
+                // Dibujo vectorial optimizado de un corazón pequeño
+                const topY = this.y - this.size / 2;
+                ctx.moveTo(this.x, topY + this.size / 4);
+                ctx.bezierCurveTo(this.x, topY, this.x - this.size / 2, topY, this.x - this.size / 2, topY + this.size / 4);
+                ctx.bezierCurveTo(this.x - this.size / 2, topY + this.size * 0.6, this.x, topY + this.size, this.x, topY + this.size);
+                ctx.bezierCurveTo(this.x, topY + this.size, this.x + this.size / 2, topY + this.size * 0.6, this.x + this.size / 2, topY + this.size / 4);
+                ctx.bezierCurveTo(this.x + this.size / 2, topY, this.x, to
