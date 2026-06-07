@@ -1,2 +1,0 @@
-# Cumplea-os-
-Cumpleaños
