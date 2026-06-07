@@ -364,7 +364,7 @@
     </div>
 
     <audio id="audioPlayer">
-        <source src="https://www.dropbox.com/scl/fi/hejj6odhqqdduxl922vgj/Baila-conmigo...-_shilohdynasty-_dedicarvideos-_jungkook-_heather-_parati-_michico-MP3-1.mp3?rlkey=ujhdxebqa85yx30p60irz7df4&st=emjsspmj&raw=1" type="audio/mpeg">
+        <source src="https://www.dropbox.com/scl/fi/n3t8rk1n8cdod8bg8lsan/baila-conmigooooxd.mp3?rlkey=h1monn24ljlenswmjuxnqqpbf&st=1f43hc6y&raw=1" type="audio/mpeg">
         Tu navegador no soporta reproducción de audio.
     </audio>
 
@@ -374,13 +374,13 @@
         // ========================================
         const lyrics = [
             { time: 0, ascii: "DANCE\nWITH ME", spanish: "Baila conmigo" },
-            { time: 4, ascii: "I'LL SING\nTO YOU", spanish: "Y te cantaré" },
-            { time: 8, ascii: "A\nSYMPHONY", spanish: "Una sinfonía" },
-            { time: 12, ascii: "WON'T YOU\nKISS ME?", spanish: "¿No me besarás?" },
-            { time: 16, ascii: "SHUT ME UP\nPLEASE", spanish: "Cállame por favor" },
-            { time: 20, ascii: "SHE'S A\nGODDESS", spanish: "Es una diosa" },
-            { time: 24, ascii: "A WISH FROM\nTHE STARS", spanish: "Un deseo de las estrellas" },
-            { time: 28, ascii: "IN MY\nHEART", spanish: "En mi corazón" }
+            { time: 3, ascii: "I'LL SING\nTO YOU", spanish: "Y te cantaré" },
+            { time: 6, ascii: "A\nSYMPHONY", spanish: "Una sinfonía" },
+            { time: 7, ascii: "WON'T YOU\nKISS ME?", spanish: "¿No me besarás?" },
+            { time: 10, ascii: "SHUT ME UP\nPLEASE", spanish: "Cállame por favor" },
+            { time: 13, ascii: "SHE'S A\nGODDESS", spanish: "Es una diosa" },
+            { time: 15, ascii: "A WISH FROM\nTHE STARS", spanish: "Un deseo de las estrellas" },
+            { time: 18, ascii: "IN MY\nHEAAAART", spanish: "En mi corazón" }
         ];
 
         // ========================================
@@ -459,7 +459,6 @@
         // ========================================
         function updateProgress() {
             const progress = (audio.currentTime / audio.duration) * 100;
-            // Evitar NaN si el audio aún no carga la duración
             if (!isNaN(progress)) {
                 progressBar.style.width = progress + '%';
             }
