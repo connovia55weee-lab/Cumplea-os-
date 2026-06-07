@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experiencia Musical Inmersiva</title>
+    <title>Misión Espacial</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,537 +14,283 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: #0a0a0a;
-            color: #7CFF7C;
+            background-color: #050510;
+            color: #fff;
+            font-family: 'Space Mono', monospace;
             overflow: hidden;
             height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
-        /* FONDO CON PARTÍCULAS SUTILES */
-        .particle-container {
-            position: fixed;
+        /* Fondo estrellado */
+        .background {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 1;
+            z-index: 0;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(124, 255, 124, 0.05) 0%, transparent 50%);
         }
 
-        .particle {
+        #ui-container {
             position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #7CFF7C;
-            opacity: 0.1;
+            top: 20px;
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #7CFF7C;
+            text-shadow: 0 0 10px rgba(124, 255, 124, 0.5);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Las estrellas que debe atrapar */
+        .star {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #fff 0%, #7CFF7C 50%, transparent 100%);
             border-radius: 50%;
-            animation: float linear infinite;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 0 20px #7CFF7C;
+            animation: pulse 2s infinite, float 4s ease-in-out infinite;
+            transition: transform 0.2s;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px #7CFF7C; }
+            50% { box-shadow: 0 0 30px #7CFF7C, 0 0 10px #fff; }
+            100% { box-shadow: 0 0 15px #7CFF7C; }
         }
 
         @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0.1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-            100% {
-                transform: translateY(-100vh) translateX(20px);
-                opacity: 0;
-            }
+            0% { transform: translateY(0px) translateX(0px); }
+            50% { transform: translateY(-20px) translateX(10px); }
+            100% { transform: translateY(0px) translateX(0px); }
         }
 
-        /* PANTALLA DE INICIO */
-        .welcome-screen {
+        /* Modal para los mensajes */
+        #modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid #7CFF7C;
+            padding: 30px;
+            border-radius: 15px;
             z-index: 100;
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
-        }
-
-        .welcome-screen.hidden {
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
             opacity: 0;
             visibility: hidden;
-        }
-
-        .welcome-title {
-            font-size: clamp(2rem, 8vw, 5rem);
-            color: #7CFF7C;
-            text-shadow: 0 0 20px #7CFF7C, 0 0 40px #7CFF7C;
-            margin-bottom: 2rem;
-            text-align: center;
-            letter-spacing: 3px;
-            font-weight: bold;
-        }
-
-        .welcome-subtitle {
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            color: #ffffff;
-            margin-bottom: 3rem;
-            text-align: center;
-            opacity: 0.8;
-            letter-spacing: 2px;
-        }
-
-        .start-button {
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            background: transparent;
-            border: 2px solid #7CFF7C;
-            color: #7CFF7C;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
             transition: all 0.3s ease;
-            box-shadow: 0 0 10px #7CFF7C;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 0 30px rgba(124, 255, 124, 0.2);
         }
 
-        .start-button::before {
-            content: '';
+        #modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #modal p {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        #modal img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        button {
+            background: transparent;
+            color: #7CFF7C;
+            border: 1px solid #7CFF7C;
+            padding: 10px 20px;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #7CFF7C;
+            color: #000;
+        }
+
+        /* Pantalla Final */
+        #final-screen {
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: #7CFF7C;
-            transition: left 0.3s ease;
-            z-index: -1;
-        }
-
-        .start-button:hover {
-            color: #0a0a0a;
-            box-shadow: 0 0 20px #7CFF7C, inset 0 0 10px #7CFF7C;
-        }
-
-        .start-button:hover::before {
-            left: 0;
-        }
-
-        .start-button:active {
-            transform: scale(0.98);
-        }
-
-        /* EXPERIENCIA PRINCIPAL */
-        .experience-container {
-            position: fixed;
-            top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: #050510;
+            z-index: 200;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            background: #0a0a0a;
-            z-index: 50;
+            justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.8s ease-in, visibility 0.8s ease-in;
+            transition: opacity 2s ease;
+            text-align: center;
+            padding: 20px;
         }
 
-        .experience-container.active {
+        #final-screen.active {
             opacity: 1;
             visibility: visible;
         }
 
-        .lyrics-display {
-            text-align: center;
-            max-width: 95vw;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
+        #final-screen h2 {
+            font-family: 'Nunito', sans-serif;
+            font-size: 3rem;
+            color: #FF7EB3;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 126, 179, 0.5);
         }
 
-        .ascii-text {
-            font-size: clamp(2rem, 12vw, 8rem);
-            color: #7CFF7C;
-            font-weight: bold;
-            text-shadow: 
-                0 0 10px #7CFF7C,
-                0 0 20px #7CFF7C,
-                0 0 30px #7CFF7C,
-                0 0 40px #00ff00,
-                inset 0 0 10px rgba(124, 255, 124, 0.3);
-            line-height: 1.2;
-            letter-spacing: 2px;
-            animation: fadeInAscii 1s ease-in;
-            word-break: break-word;
-            font-family: 'Courier New', monospace;
-        }
-
-        @keyframes fadeInAscii {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeOutAscii {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-        }
-
-        .ascii-text.fade-out {
-            animation: fadeOutAscii 0.8s ease-out;
-        }
-
-        .spanish-translation {
-            font-size: clamp(0.9rem, 3vw, 2rem);
-            color: #ffffff;
-            font-weight: 300;
-            letter-spacing: 1px;
-            animation: fadeInSpanish 1.5s ease-in 0.3s both;
-            font-style: italic;
-            opacity: 0.9;
-        }
-
-        @keyframes fadeInSpanish {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 0.9;
-            }
-        }
-
-        .spanish-translation.fade-out {
-            animation: fadeOutSpanish 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeOutSpanish {
-            from {
-                opacity: 0.9;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
-        /* CONTROLES DE MÚSICA */
-        .music-controls {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 1rem;
-            z-index: 60;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .experience-container.active .music-controls {
-            opacity: 0.8;
-        }
-
-        .music-controls:hover {
-            opacity: 1;
-        }
-
-        .control-button {
-            width: 50px;
-            height: 50px;
-            background: transparent;
-            border: 2px solid #7CFF7C;
-            color: #7CFF7C;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(124, 255, 124, 0.5);
-        }
-
-        .control-button:hover {
-            box-shadow: 0 0 20px #7CFF7C;
-            transform: scale(1.1);
-        }
-
-        .control-button:active {
-            transform: scale(0.95);
-        }
-
-        /* PROGRESS BAR */
-        .progress-container {
-            position: fixed;
-            bottom: 6rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 500px;
-            height: 4px;
-            background: rgba(124, 255, 124, 0.2);
-            border-radius: 2px;
-            z-index: 60;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            cursor: pointer;
-        }
-
-        .experience-container.active .progress-container {
-            opacity: 0.8;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(to right, #7CFF7C, #00ff00);
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .lyrics-display {
-                gap: 1rem;
-            }
-
-            .music-controls {
-                bottom: 1rem;
-            }
-
-            .progress-container {
-                bottom: 5rem;
-                width: 95%;
-            }
+        #final-screen p {
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.3rem;
+            max-width: 600px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="welcome-screen" id="welcomeScreen">
-        <h1 class="welcome-title">▌ SYMPHONIA ▐</h1>
-        <p class="welcome-subtitle">Una experiencia musical inmersiva</p>
-        <button class="start-button" id="startBtn">INICIAR EXPERIENCIA</button>
+
+    <div class="background"></div>
+
+    <div id="ui-container">
+        <h1>PROYECTO: STARDUST</h1>
+        <p class="subtitle">Atrapa las 4 estrellas fugaces para decodificar el mensaje</p>
+        <p class="subtitle" id="counter">Estrellas recuperadas: 0 / 4</p>
     </div>
 
-    <div class="experience-container" id="experienceContainer">
-        <div class="particle-container" id="particleContainer"></div>
-        
-        <div class="lyrics-display" id="lyricsDisplay">
-            <div class="ascii-text" id="asciiText"></div>
-            <div class="spanish-translation" id="spanishText"></div>
-        </div>
+    <div id="game-area"></div>
 
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <div class="music-controls">
-            <button class="control-button" id="playPauseBtn" title="Reproducir/Pausar">▶</button>
-            <button class="control-button" id="resetBtn" title="Reiniciar">⟲</button>
-        </div>
+    <div id="modal">
+        <img id="modal-image" src="" alt="Imagen especial">
+        <p id="modal-text"></p>
+        <button id="modal-btn">Continuar misión</button>
     </div>
 
-    <audio id="audioPlayer">
-        <source src="https://www.dropbox.com/scl/fi/n3t8rk1n8cdod8bg8lsan/baila-conmigooooxd.mp3?rlkey=h1monn24ljlenswmjuxnqqpbf&st=1f43hc6y&raw=1" type="audio/mpeg">
-        Tu navegador no soporta reproducción de audio.
-    </audio>
+    <div id="final-screen">
+        <h2>¡Feliz Cumpleaños, mi amor! 🎉</h2>
+        <p>Había preparado toda esta misión espacial solo para decirte lo mucho que te adoro. Eres la persona más fuerte y maravillosa que conozco. Que este nuevo viaje alrededor del sol esté lleno de todo lo hermoso que mereces. Siempre estaré aquí para apoyarte en cada paso.<br><br>Te amo muchísimo.</p>
+    </div>
 
     <script>
-        // ========================================
-        // CONFIGURACIÓN DE LETRAS
-        // ========================================
-        const lyrics = [
-            { time: 0, ascii: "DANCE\nWITH ME", spanish: "Baila conmigo" },
-            { time: 3, ascii: "I'LL SING\nTO YOU", spanish: "Y te cantaré" },
-            { time: 6, ascii: "A\nSYMPHONY", spanish: "Una sinfonía" },
-            { time: 7, ascii: "WON'T YOU\nKISS ME?", spanish: "¿No me besarás?" },
-            { time: 10, ascii: "SHUT ME UP\nPLEASE", spanish: "Cállame por favor" },
-            { time: 13, ascii: "SHE'S A\nGODDESS", spanish: "Es una diosa" },
-            { time: 15, ascii: "A WISH FROM\nTHE STARS", spanish: "Un deseo de las estrellas" },
-            { time: 18, ascii: "IN MY\nHEAAAART", spanish: "En mi corazón" }
+        // Configuración de los mensajes y las imágenes
+        const stages = [
+            {
+                text: "Analizando coordenadas... \nEres mi lugar de paz en medio del caos. Cada momento a tu lado es una aventura que no quiero que termine.",
+                image: null
+            },
+            {
+                text: "Decodificando señal... \nAdmiro muchísimo lo fuerte y valiente que eres cada día. Tu luz hace que todo mi mundo sea mejor.",
+                image: null
+            },
+            {
+                text: "Archivo confidencial recuperado...",
+                image: "1002418080.jpg" // Imagen del muñequito blanco
+            },
+            {
+                text: "Traducción de idioma antiguo completada...",
+                image: "1002418078.jpg" // Imagen de los dinosaurios
+            }
         ];
 
-        // ========================================
-        // ELEMENTOS DEL DOM
-        // ========================================
-        const audio = document.getElementById('audioPlayer');
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        const experienceContainer = document.getElementById('experienceContainer');
-        const startBtn = document.getElementById('startBtn');
-        const asciiText = document.getElementById('asciiText');
-        const spanishText = document.getElementById('spanishText');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressContainer = document.getElementById('progressContainer');
-        const particleContainer = document.getElementById('particleContainer');
+        let currentStage = 0;
+        const gameArea = document.getElementById('game-area');
+        const counterText = document.getElementById('counter');
+        const modal = document.getElementById('modal');
+        const modalText = document.getElementById('modal-text');
+        const modalImage = document.getElementById('modal-image');
+        const modalBtn = document.getElementById('modal-btn');
+        const finalScreen = document.getElementById('final-screen');
 
-        // ========================================
-        // VARIABLES DE ESTADO
-        // ========================================
-        let currentLyricIndex = -1;
-        let isPlaying = false;
+        function spawnStar() {
+            if (currentStage >= stages.length) return;
 
-        // ========================================
-        // CREAR PARTÍCULAS PARA EL FONDO
-        // ========================================
-        function createParticles() {
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDuration = (3 + Math.random() * 4) + 's';
-                particle.style.animationDelay = Math.random() * 2 + 's';
-                particleContainer.appendChild(particle);
-            }
-        }
-
-        createParticles();
-
-        // ========================================
-        // FUNCIÓN PARA ACTUALIZAR LETRAS
-        // ========================================
-        function updateLyrics() {
-            const currentTime = audio.currentTime;
-            let nextLyricIndex = -1;
-
-            for (let i = 0; i < lyrics.length; i++) {
-                if (currentTime >= lyrics[i].time) {
-                    nextLyricIndex = i;
-                }
-            }
-
-            if (nextLyricIndex !== currentLyricIndex) {
-                if (currentLyricIndex !== -1) {
-                    asciiText.classList.add('fade-out');
-                    spanishText.classList.add('fade-out');
-                }
-
-                currentLyricIndex = nextLyricIndex;
-
-                setTimeout(() => {
-                    if (currentLyricIndex !== -1) {
-                        asciiText.textContent = lyrics[currentLyricIndex].ascii;
-                        spanishText.textContent = lyrics[currentLyricIndex].spanish;
-
-                        asciiText.classList.remove('fade-out');
-                        spanishText.classList.remove('fade-out');
-                    }
-                }, 300);
-            }
-        }
-
-        // ========================================
-        // ACTUALIZAR PROGRESO DE LA CANCIÓN
-        // ========================================
-        function updateProgress() {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            if (!isNaN(progress)) {
-                progressBar.style.width = progress + '%';
-            }
-        }
-
-        // ========================================
-        // EVENTOS DE AUDIO
-        // ========================================
-        audio.addEventListener('timeupdate', () => {
-            updateLyrics();
-            updateProgress();
-        });
-
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            playPauseBtn.textContent = '▶';
-            currentLyricIndex = -1;
-            asciiText.textContent = '';
-            spanishText.textContent = '';
-        });
-
-        // ========================================
-        // BOTÓN INICIO
-        // ========================================
-        startBtn.addEventListener('click', () => {
-            welcomeScreen.classList.add('hidden');
-            experienceContainer.classList.add('active');
+            const star = document.createElement('div');
+            star.className = 'star';
             
-            setTimeout(() => {
-                audio.play().catch(e => console.log("Esperando interacción para reproducir", e));
-                isPlaying = true;
-                playPauseBtn.textContent = '⏸';
-            }, 800);
-        });
+            // Posición aleatoria evitando los bordes extremos
+            const x = Math.random() * (window.innerWidth - 100) + 50;
+            const y = Math.random() * (window.innerHeight - 200) + 100;
+            
+            star.style.left = `${x}px`;
+            star.style.top = `${y}px`;
 
-        // ========================================
-        // BOTÓN PLAY/PAUSE
-        // ========================================
-        playPauseBtn.addEventListener('click', () => {
-            if (isPlaying) {
-                audio.pause();
-                playPauseBtn.textContent = '▶';
+            star.addEventListener('click', () => {
+                star.remove();
+                showModal(stages[currentStage]);
+            });
+
+            gameArea.appendChild(star);
+        }
+
+        function showModal(data) {
+            modalText.innerText = data.text;
+            
+            if (data.image) {
+                modalImage.src = data.image;
+                modalImage.style.display = 'block';
             } else {
-                audio.play();
-                playPauseBtn.textContent = '⏸';
+                modalImage.style.display = 'none';
             }
-            isPlaying = !isPlaying;
+
+            modal.classList.add('active');
+        }
+
+        modalBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            currentStage++;
+            counterText.innerText = `Estrellas recuperadas: ${currentStage} / 4`;
+
+            if (currentStage < stages.length) {
+                // Dar un pequeño respiro antes de que aparezca la siguiente estrella
+                setTimeout(spawnStar, 800);
+            } else {
+                // Fin del juego, mostrar pantalla de cumpleaños
+                setTimeout(() => {
+                    finalScreen.classList.add('active');
+                }, 1000);
+            }
         });
 
-        // ========================================
-        // BOTÓN RESET
-        // ========================================
-        resetBtn.addEventListener('click', () => {
-            audio.currentTime = 0;
-            currentLyricIndex = -1;
-            asciiText.textContent = '';
-            spanishText.textContent = '';
-            if (isPlaying) {
-                audio.play();
-            }
-        });
+        // Iniciar el juego
+        setTimeout(spawnStar, 1000);
 
-        // ========================================
-        // CLICK EN LA BARRA DE PROGRESO
-        // ========================================
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = percent * audio.duration;
-        });
-
-        // ========================================
-        // EFECTO GLITCH SUAVE EN TRANSICIONES
-        // ========================================
-        setInterval(() => {
-            if (isPlaying && currentLyricIndex !== -1) {
-                if (Math.random() > 0.98) {
-                    asciiText.style.opacity = 0.95;
-                    setTimeout(() => {
-                        asciiText.style.opacity = 1;
-                    }, 50);
-                }
-            }
-        }, 500);
     </script>
 </body>
 </html>
