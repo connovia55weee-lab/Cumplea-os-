@@ -1,425 +1,444 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Nuestra Canción ❤️</title><style>
-:root{
---bg:#000000;
---terminal:#7CFF7C;
---text:#f5f5f5;
---glow:rgba(124,255,124,.5);
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-body{
-background:var(--bg);
-color:var(--text);
-font-family:Consolas, monospace;
-overflow:hidden;
-height:100vh;
-}
-
-/* =========================
-PANTALLA INICIAL
-========================= */
-
-#welcome{
-position:fixed;
-inset:0;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-background:#000;
-z-index:100;
-transition:1s;
-}
-
-#welcome.hidden{
-opacity:0;
-pointer-events:none;
-}
-
-h1{
-font-size:2rem;
-margin-bottom:20px;
-}
-
-.start-btn{
-padding:14px 30px;
-background:#111;
-color:white;
-border:1px solid #444;
-cursor:pointer;
-border-radius:8px;
-transition:.3s;
-}
-
-.start-btn:hover{
-background:#1b1b1b;
-}
-
-/* =========================
-APP
-========================= */
-
-#app{
-opacity:0;
-transition:1s;
-height:100vh;
-display:flex;
-flex-direction:column;
-}
-
-#app.show{
-opacity:1;
-}
-
-.song-title{
-padding:15px;
-font-size:.9rem;
-color:#aaa;
-border-bottom:1px solid #222;
-}
-
-/* =========================
-ASCII
-========================= */
-
-#ascii{
-color:var(--terminal);
-font-size:clamp(8px,1.6vw,18px);
-line-height:1;
-white-space:pre;
-padding:20px;
-text-shadow:
-0 0 5px var(--glow),
-0 0 20px var(--glow);
-overflow:hidden;
-min-height:250px;
-}
-
-/* =========================
-LETRAS
-========================= */
-
-#lyrics{
-flex:1;
-overflow-y:auto;
-padding:20px;
-}
-
-.line{
-opacity:.45;
-margin-bottom:15px;
-transition:.5s;
-font-size:1rem;
-line-height:1.7;
-}
-
-.line.active{
-opacity:1;
-}
-
-.cursor{
-display:inline-block;
-animation:blink .8s infinite;
-}
-
-@keyframes blink{
-50%{
-opacity:0;
-}
-}
-
-/* =========================
-PARTÍCULAS
-========================= */
-
-canvas{
-position:fixed;
-inset:0;
-pointer-events:none;
-z-index:-1;
-}
-
-@media(max-width:768px){
-
-#ascii{
-font-size:7px;
-padding:15px;
-}
-
-.line{
-font-size:.95rem;
-}
-
-}
-</style></head>
-<body><canvas id="particles"></canvas>
-
-<!-- =========================
-CAMBIAR AQUÍ MP3
-========================= --><audio id="audio">
-<source src="tu-cancion.mp3" type="audio/mpeg">
-</audio><div id="welcome"><h1>Para ti ❤️</h1><button class="start-btn" id="startBtn">
-Iniciar experiencia
-</button></div><div id="app"><div class="song-title">
-El Cuarteto de Nos - Enamorado Tuyo
-</div><pre id="ascii"></pre><div id="lyrics"></div></div><script>
-
-/* ==========================================
-CAMBIAR FRASES ASCII AQUÍ
-========================================== */
-
-const asciiFrames = [
-
-`███████╗███╗   ███╗ ██████╗
-██╔════╝████╗ ████║██╔═══██╗
-█████╗  ██╔████╔██║██║   ██║
-██╔══╝  ██║╚██╔╝██║██║   ██║
-███████╗██║ ╚═╝ ██║╚██████╔╝
-╚══════╝╚═╝     ╚═╝ ╚═════╝`,
-
-`███╗   ███╗██╗
-████╗ ████║██║
-██╔████╔██║██║
-██║╚██╔╝██║██║
-██║ ╚═╝ ██║██║
-╚═╝     ╚═╝╚═╝`,
-
-`██████╗ ██████╗ ██████╗
-██╔══██╗██╔══██╗██╔══██╗
-██████╔╝██████╔╝██████╔╝
-██╔═══╝ ██╔══██╗██╔═══╝
-██║     ██║  ██║██║
-╚═╝     ╚═╝  ╚═╝╚═╝`
-
-];
-
-/* ==========================================
-CAMBIAR LETRAS AQUÍ
-========================================== */
-
-const lyrics = [
-
-{time:0,text:"Y eso no significa que tenga un significado"},
-{time:5,text:"Si pensás que amor yo siento, por favor no hagas pamento"},
-{time:12,text:"No me vengas con historias que no van"},
-{time:18,text:"Porque no estoy enamorado"},
-{time:24,text:"Pero cada vez que te veo me haces falta"}
-
-];
-
-/* ==========================================
-CONFIG
-========================================== */
-
-const TYPE_SPEED = 40;
-
-/* ==========================================
-INICIO
-========================================== */
-
-const startBtn = document.getElementById("startBtn");
-const audio = document.getElementById("audio");
-const app = document.getElementById("app");
-const welcome = document.getElementById("welcome");
-
-startBtn.onclick = async()=>{
-
-try{
-await audio.play();
-}catch(e){}
-
-welcome.classList.add("hidden");
-app.classList.add("show");
-
-};
-
-/* ==========================================
-ASCII ROTATIVO
-========================================== */
-
-const ascii = document.getElementById("ascii");
-let frame = 0;
-
-ascii.textContent = asciiFrames[0];
-
-setInterval(()=>{
-
-frame++;
-ascii.textContent =
-asciiFrames[frame % asciiFrames.length];
-
-},5000);
-
-/* ==========================================
-TYPEWRITER
-========================================== */
-
-const lyricsBox =
-document.getElementById("lyrics");
-
-let currentIndex = -1;
-
-function writeLine(text){
-
-const div =
-document.createElement("div");
-
-div.className = "line active";
-
-lyricsBox.appendChild(div);
-
-let i=0;
-
-function type(){
-
-if(i < text.length){
-
-div.textContent += text[i];
-i++;
-
-setTimeout(type,TYPE_SPEED);
-
-}else{
-
-div.innerHTML +=
-'<span class="cursor">|</span>';
-
-}
-
-}
-
-type();
-
-lyricsBox.scrollTop =
-lyricsBox.scrollHeight;
-
-}
-
-audio.addEventListener("timeupdate",()=>{
-
-const current =
-Math.floor(audio.currentTime);
-
-const index =
-lyrics.findIndex((item,next)=>{
-
-const nextTime =
-lyrics[next+1]?.time ?? 99999;
-
-return current >= item.time &&
-current < nextTime;
-
-});
-
-if(index !== -1 &&
-index !== currentIndex){
-
-currentIndex = index;
-
-writeLine(
-lyrics[index].text
-);
-
-}
-
-});
-
-/* ==========================================
-PARTÍCULAS
-========================================== */
-
-const canvas =
-document.getElementById("particles");
-
-const ctx =
-canvas.getContext("2d");
-
-function resize(){
-
-canvas.width =
-window.innerWidth;
-
-canvas.height =
-window.innerHeight;
-
-}
-
-resize();
-
-window.addEventListener(
-"resize",
-resize
-);
-
-const particles=[];
-
-for(let i=0;i<50;i++){
-
-particles.push({
-
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-
-r:Math.random()*1.5,
-
-v:Math.random()*0.5+0.2
-
-});
-
-}
-
-function animate(){
-
-ctx.clearRect(
-0,0,
-canvas.width,
-canvas.height
-);
-
-ctx.fillStyle =
-"rgba(124,255,124,.25)";
-
-particles.forEach(p=>{
-
-ctx.beginPath();
-
-ctx.arc(
-p.x,
-p.y,
-p.r,
-0,
-Math.PI*2
-);
-
-ctx.fill();
-
-p.y += p.v;
-
-if(p.y > canvas.height){
-
-p.y = 0;
-p.x =
-Math.random()*canvas.width;
-
-}
-
-});
-
-requestAnimationFrame(
-animate
-);
-
-}
-
-animate();
-
-</script></body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transmisión para Ti</title>
+    <style>
+        /* =========================================================
+           1. VARIABLES Y CONFIGURACIÓN GLOBAL (CSS)
+           ========================================================= */
+        :root {
+            --bg-color: #050505; /* Fondo oscuro casi negro */
+            --terminal-green: #7CFF7C; /* Verde neón terminal */
+            --text-color: #ffffff; /* Color de las letras (blanco) */
+            --glow-green: 0 0 10px rgba(124, 255, 124, 0.5), 0 0 20px rgba(124, 255, 124, 0.3);
+            --glow-white: 0 0 8px rgba(255, 255, 255, 0.4);
+            --font-terminal: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-terminal);
+            overflow: hidden; /* Evita scroll indeseado */
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Lienzo para partículas de fondo */
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           2. PANTALLA DE BIENVENIDA
+           ========================================================= */
+        #welcome-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .start-btn {
+            background: transparent;
+            color: var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: var(--font-terminal);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: var(--glow-green);
+            text-shadow: var(--glow-green);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn:hover {
+            background: var(--terminal-green);
+            color: var(--bg-color);
+            box-shadow: 0 0 30px var(--terminal-green);
+        }
+
+        /* =========================================================
+           3. ESTRUCTURA PRINCIPAL (REPRODUCTOR Y LETRAS)
+           ========================================================= */
+        #main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+            opacity: 0; /* Oculto inicialmente */
+            transition: opacity 3s ease-in-out;
+        }
+
+        /* Cabecera: Nombre de la canción */
+        #header {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--terminal-green);
+            opacity: 0.8;
+            letter-spacing: 3px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            text-shadow: var(--glow-green);
+            flex-shrink: 0;
+        }
+
+        /* Contenedor del texto ASCII gigante */
+        #ascii-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #ascii-art {
+            color: var(--terminal-green);
+            text-shadow: var(--glow-green);
+            white-space: pre;
+            font-size: 1vw; /* Se ajustará dinámicamente con JS para ser responsive */
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        /* Contenedor de letras (Karaoke/Typewriter) */
+        #lyrics-container {
+            height: 40%;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Gradiente para difuminar las letras antiguas hacia arriba */
+        #lyrics-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, var(--bg-color), transparent);
+            z-index: 2;
+        }
+
+        .lyric-line {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            text-shadow: var(--glow-white);
+            opacity: 0.6;
+            transition: opacity 0.5s ease;
+            min-height: 1.5rem;
+            word-wrap: break-word;
+        }
+
+        .lyric-line.active {
+            opacity: 1;
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        /* Cursor parpadeante para el efecto Typewriter */
+        .cursor::after {
+            content: '█';
+            display: inline-block;
+            margin-left: 5px;
+            color: var(--terminal-green);
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Adaptación móvil */
+        @media (max-width: 768px) {
+            .lyric-line { font-size: 1rem; }
+            .lyric-line.active { font-size: 1.2rem; }
+            #header { font-size: 0.7rem; }
+            .start-btn { font-size: 1rem; padding: 10px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-audio" src="tu_archivo_de_audio.mp3"></audio>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div id="welcome-screen">
+        <button class="start-btn" id="start-btn">Iniciar Experiencia</button>
+    </div>
+
+    <div id="main-container">
+        <div id="header">▶ REPRODUCIENDO: Cornfield Chase - Hans Zimmer</div>
+        
+        <div id="ascii-container">
+            <pre id="ascii-art"></pre>
+        </div>
+
+        <div id="lyrics-container" id="lyrics-box">
+            </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           1. ZONA DE PERSONALIZACIÓN
+           ========================================================= */
+
+        // Velocidad de escritura (milisegundos por letra)
+        const TYPE_SPEED = 60; 
+
+        // Frases ASCII. El sistema rotará entre estas frases cada cierto tiempo.
+        // Mantenlo corto para que se vea bien en móviles.
+        const asciiPhrases = [
+            "AMOR",
+            "ESTRELLAS",
+            "SIEMPRE"
+        ];
+        let currentAsciiIndex = 0;
+
+        // LETRAS SINCRONIZADAS
+        // time: segundo exacto donde inicia la frase.
+        // text: el texto que se escribirá.
+        const lyricsData = [
+            { time: 1.0, text: "> Inicializando sistema..." },
+            { time: 4.0, text: "> Estableciendo conexión segura..." },
+            { time: 8.0, text: "A través del tiempo y la distancia," },
+            { time: 13.0, text: "hay mensajes que cruzan galaxias enteras." },
+            { time: 18.0, text: "Hoy quiero decirte algo importante." },
+            { time: 24.0, text: "Eres mi constelación favorita," },
+            { time: 30.0, text: "el lugar donde siempre quiero volver." }
+        ];
+
+        /* =========================================================
+           2. SISTEMA DE GENERACIÓN ASCII (MINIMALISTA)
+           ========================================================= */
+        // Diccionario básico de 5x5 para generar el ASCII dinámicamente
+        const font5x5 = {
+            'A': ["  #  "," # # ","#####","#   #","#   #"],
+            'E': ["#####","#    ","#####","#    ","#####"],
+            'I': [" ### ","  #  ","  #  ","  #  "," ### "],
+            'L': ["#    ","#    ","#    ","#    ","#####"],
+            'M': ["#   #","## ##","# # #","#   #","#   #"],
+            'O': [" ### ","#   #","#   #","#   #"," ### "],
+            'R': ["#### ","#   #","#### ","#  # ","#   #"],
+            'S': [" ####","#    "," ### ","    #","#### "],
+            'T': ["#####","  #  ","  #  ","  #  ","  #  "],
+            ' ': ["     ","     ","     ","     ","     "]
+        };
+
+        // Genera el texto ASCII y lo adapta a la pantalla
+        function generateAscii(text) {
+            text = text.toUpperCase();
+            let result = ["", "", "", "", ""];
+            for (let char of text) {
+                let letter = font5x5[char] || font5x5[' ']; // Espacio si no existe
+                for (let i = 0; i < 5; i++) {
+                    // Reemplazamos los # por un bloque sólido de terminal
+                    result[i] += letter[i].replace(/#/g, '█') + "  "; 
+                }
+            }
+            return result.join("\n");
+        }
+
+        function updateAsciiDisplay() {
+            const asciiElement = document.getElementById('ascii-art');
+            asciiElement.textContent = generateAscii(asciiPhrases[currentAsciiIndex]);
+            
+            // Auto-ajuste responsivo para que no se salga de la pantalla
+            const containerWidth = document.getElementById('ascii-container').clientWidth;
+            const textLength = asciiPhrases[currentAsciiIndex].length * 7; // aprox caracteres
+            // Ajustamos el tamaño de la fuente basado en el ancho disponible
+            let fontSize = containerWidth / textLength;
+            if(fontSize > 30) fontSize = 30; // Tamaño máximo
+            asciiElement.style.fontSize = `${fontSize}px`;
+        }
+
+        // Rotar palabras ASCII cada 10 segundos
+        setInterval(() => {
+            currentAsciiIndex = (currentAsciiIndex + 1) % asciiPhrases.length;
+            updateAsciiDisplay();
+        }, 10000);
+
+
+        /* =========================================================
+           3. LÓGICA PRINCIPAL Y AUDIO
+           ========================================================= */
+        const startBtn = document.getElementById('start-btn');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainContainer = document.getElementById('main-container');
+        const audio = document.getElementById('bg-audio');
+        const lyricsContainer = document.getElementById('lyrics-container');
+
+        let currentLyricIndex = 0;
+        let isTyping = false;
+
+        startBtn.addEventListener('click', () => {
+            // Iniciar Audio
+            audio.play().catch(e => console.log("Error reproduciendo audio: ", e));
+            
+            // Transición de pantallas
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                mainContainer.style.opacity = '1';
+                updateAsciiDisplay(); // Mostrar primer ASCII
+                requestAnimationFrame(syncLyrics); // Iniciar sincronización
+            }, 2000);
+        });
+
+        // Evento de redimensionamiento para recalcular el tamaño del ASCII
+        window.addEventListener('resize', updateAsciiDisplay);
+
+        /* =========================================================
+           4. SINCRONIZACIÓN DE LETRAS Y EFECTO TYPEWRITER
+           ========================================================= */
+        function syncLyrics() {
+            if (currentLyricIndex < lyricsData.length) {
+                const nextLyric = lyricsData[currentLyricIndex];
+                
+                // Si el tiempo actual del audio alcanza el tiempo de la letra
+                if (audio.currentTime >= nextLyric.time && !isTyping) {
+                    typeWriterEffect(nextLyric.text);
+                    currentLyricIndex++;
+                }
+            }
+            requestAnimationFrame(syncLyrics); // Bucle optimizado de verificación
+        }
+
+        function typeWriterEffect(text) {
+            isTyping = true;
+            
+            // Quitar cursor de la línea anterior y atenuarla
+            const prevLines = document.querySelectorAll('.lyric-line');
+            prevLines.forEach(line => {
+                line.classList.remove('cursor', 'active');
+            });
+
+            // Crear nueva línea
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'lyric-line active cursor';
+            lyricsContainer.appendChild(lineDiv);
+
+            let charIndex = 0;
+
+            function typeChar() {
+                if (charIndex < text.length) {
+                    lineDiv.textContent += text.charAt(charIndex);
+                    charIndex++;
+                    
+                    // Auto-scroll para mantener siempre visible la última línea
+                    lyricsContainer.scrollTop = lyricsContainer.scrollHeight;
+                    
+                    setTimeout(typeChar, TYPE_SPEED);
+                } else {
+                    isTyping = false;
+                }
+            }
+            typeChar();
+        }
+
+        /* =========================================================
+           5. SISTEMA DE PARTÍCULAS (FONDO CINEMATOGRÁFICO)
+           ========================================================= */
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedY = Math.random() * -0.5 - 0.1; // Suben lentamente
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speedY;
+                // Reiniciar en la parte inferior si salen de la pantalla
+                if (this.y < 0) {
+                    this.y = canvas.height;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(124, 255, 124, ${this.opacity})`; // Tono verdoso
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            // Ajustar cantidad de partículas según el tamaño de la pantalla
+            const numberOfParticles = (canvas.width * canvas.height) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+    </script>
+</body>
 </html>
