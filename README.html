@@ -336,36 +336,15 @@
                 width: 95%;
             }
         }
-
-        /* GLITCH EFFECT OPCIONAL */
-        @keyframes glitch {
-            0% {
-                text-shadow: 
-                    0 0 10px #7CFF7C,
-                    0 0 20px #7CFF7C,
-                    0 0 30px #7CFF7C,
-                    0 0 40px #00ff00;
-            }
-            100% {
-                text-shadow: 
-                    0 0 10px #7CFF7C,
-                    0 0 20px #7CFF7C,
-                    0 0 30px #7CFF7C,
-                    0 0 40px #00ff00,
-                    inset 0 0 10px rgba(124, 255, 124, 0.5);
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- PANTALLA DE INICIO -->
     <div class="welcome-screen" id="welcomeScreen">
         <h1 class="welcome-title">▌ SYMPHONIA ▐</h1>
         <p class="welcome-subtitle">Una experiencia musical inmersiva</p>
         <button class="start-button" id="startBtn">INICIAR EXPERIENCIA</button>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="experience-container" id="experienceContainer">
         <div class="particle-container" id="particleContainer"></div>
         
@@ -374,7 +353,6 @@
             <div class="spanish-translation" id="spanishText"></div>
         </div>
 
-        <!-- CONTROLES INFERIORES -->
         <div class="progress-container" id="progressContainer">
             <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -385,59 +363,24 @@
         </div>
     </div>
 
-    <!-- ========================================
-         CAMBIAR AQUÍ TU CANCIÓN
-         ======================================== -->
     <audio id="audioPlayer">
-        <source src="https://www.dropbox.com/scl/fi/hejj6odhqqdduxl922vgj/Baila-conmigo...-_shilohdynasty-_dedicarvideos-_jungkook-_heather-_parati-_michico-MP3-1.mp3?rlkey=ujhdxebqa85yx30p60irz7df4&st=emjsspmj&dl=0" type="audio/mpeg">
+        <source src="https://www.dropbox.com/scl/fi/hejj6odhqqdduxl922vgj/Baila-conmigo...-_shilohdynasty-_dedicarvideos-_jungkook-_heather-_parati-_michico-MP3-1.mp3?rlkey=ujhdxebqa85yx30p60irz7df4&st=emjsspmj&raw=1" type="audio/mpeg">
         Tu navegador no soporta reproducción de audio.
     </audio>
 
     <script>
         // ========================================
-        // CONFIGURACIÓN DE LETRAS - EDITA AQUÍ
+        // CONFIGURACIÓN DE LETRAS
         // ========================================
         const lyrics = [
-            {
-                time: 0,
-                ascii: "DANCE\nWITH ME",
-                spanish: "Baila conmigo"
-            },
-            {
-                time: 4,
-                ascii: "I'LL SING\nTO YOU",
-                spanish: "Y te cantaré"
-            },
-            {
-                time: 8,
-                ascii: "A\nSYMPHONY",
-                spanish: "Una sinfonía"
-            },
-            {
-                time: 12,
-                ascii: "WON'T YOU\nKISS ME?",
-                spanish: "¿No me besarás?"
-            },
-            {
-                time: 16,
-                ascii: "SHUT ME UP\nPLEASE",
-                spanish: "Cállame por favor"
-            },
-            {
-                time: 20,
-                ascii: "SHE'S A\nGODDESS",
-                spanish: "Es una diosa"
-            },
-            {
-                time: 24,
-                ascii: "A WISH FROM\nTHE STARS",
-                spanish: "Un deseo de las estrellas"
-            },
-            {
-                time: 28,
-                ascii: "IN MY\nHEART",
-                spanish: "En mi corazón"
-            }
+            { time: 0, ascii: "DANCE\nWITH ME", spanish: "Baila conmigo" },
+            { time: 4, ascii: "I'LL SING\nTO YOU", spanish: "Y te cantaré" },
+            { time: 8, ascii: "A\nSYMPHONY", spanish: "Una sinfonía" },
+            { time: 12, ascii: "WON'T YOU\nKISS ME?", spanish: "¿No me besarás?" },
+            { time: 16, ascii: "SHUT ME UP\nPLEASE", spanish: "Cállame por favor" },
+            { time: 20, ascii: "SHE'S A\nGODDESS", spanish: "Es una diosa" },
+            { time: 24, ascii: "A WISH FROM\nTHE STARS", spanish: "Un deseo de las estrellas" },
+            { time: 28, ascii: "IN MY\nHEART", spanish: "En mi corazón" }
         ];
 
         // ========================================
@@ -476,9 +419,6 @@
             }
         }
 
-        // ========================================
-        // INICIALIZAR PARTÍCULAS
-        // ========================================
         createParticles();
 
         // ========================================
@@ -488,16 +428,13 @@
             const currentTime = audio.currentTime;
             let nextLyricIndex = -1;
 
-            // Encontrar la siguiente letra basada en el tiempo actual
             for (let i = 0; i < lyrics.length; i++) {
                 if (currentTime >= lyrics[i].time) {
                     nextLyricIndex = i;
                 }
             }
 
-            // Si cambió la letra actual
             if (nextLyricIndex !== currentLyricIndex) {
-                // Fade out de la letra anterior
                 if (currentLyricIndex !== -1) {
                     asciiText.classList.add('fade-out');
                     spanishText.classList.add('fade-out');
@@ -505,14 +442,11 @@
 
                 currentLyricIndex = nextLyricIndex;
 
-                // Esperar a que termine la animación de fade out
                 setTimeout(() => {
                     if (currentLyricIndex !== -1) {
-                        // Mostrar nueva letra
                         asciiText.textContent = lyrics[currentLyricIndex].ascii;
                         spanishText.textContent = lyrics[currentLyricIndex].spanish;
 
-                        // Remover animación de fade out y añadir fade in
                         asciiText.classList.remove('fade-out');
                         spanishText.classList.remove('fade-out');
                     }
@@ -525,7 +459,10 @@
         // ========================================
         function updateProgress() {
             const progress = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = progress + '%';
+            // Evitar NaN si el audio aún no carga la duración
+            if (!isNaN(progress)) {
+                progressBar.style.width = progress + '%';
+            }
         }
 
         // ========================================
@@ -552,7 +489,7 @@
             experienceContainer.classList.add('active');
             
             setTimeout(() => {
-                audio.play();
+                audio.play().catch(e => console.log("Esperando interacción para reproducir", e));
                 isPlaying = true;
                 playPauseBtn.textContent = '⏸';
             }, 800);
@@ -599,7 +536,6 @@
         // ========================================
         setInterval(() => {
             if (isPlaying && currentLyricIndex !== -1) {
-                // Efecto sutil de brillo pulsante
                 if (Math.random() > 0.98) {
                     asciiText.style.opacity = 0.95;
                     setTimeout(() => {
