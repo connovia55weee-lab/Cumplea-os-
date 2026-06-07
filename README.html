@@ -3,442 +3,613 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmisión para Ti</title>
+    <title>Experiencia Musical Inmersiva</title>
     <style>
-        /* =========================================================
-           1. VARIABLES Y CONFIGURACIÓN GLOBAL (CSS)
-           ========================================================= */
-        :root {
-            --bg-color: #050505; /* Fondo oscuro casi negro */
-            --terminal-green: #7CFF7C; /* Verde neón terminal */
-            --text-color: #ffffff; /* Color de las letras (blanco) */
-            --glow-green: 0 0 10px rgba(124, 255, 124, 0.5), 0 0 20px rgba(124, 255, 124, 0.3);
-            --glow-white: 0 0 8px rgba(255, 255, 255, 0.4);
-            --font-terminal: 'Courier New', Courier, monospace;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-terminal);
-            overflow: hidden; /* Evita scroll indeseado */
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #7CFF7C;
+            overflow: hidden;
             height: 100vh;
-            width: 100vw;
             display: flex;
-            flex-direction: column;
-            position: relative;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Lienzo para partículas de fondo */
-        #particles-canvas {
-            position: absolute;
+        /* FONDO CON PARTÍCULAS SUTILES */
+        .particle-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            opacity: 0.6;
             pointer-events: none;
+            z-index: 1;
         }
 
-        /* =========================================================
-           2. PANTALLA DE BIENVENIDA
-           ========================================================= */
-        #welcome-screen {
+        .particle {
             position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #7CFF7C;
+            opacity: 0.1;
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* PANTALLA DE INICIO */
+        .welcome-screen {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            transition: opacity 2s ease-in-out;
-        }
-
-        .start-btn {
-            background: transparent;
-            color: var(--terminal-green);
-            border: 1px solid var(--terminal-green);
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-family: var(--font-terminal);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: var(--glow-green);
-            text-shadow: var(--glow-green);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .start-btn:hover {
-            background: var(--terminal-green);
-            color: var(--bg-color);
-            box-shadow: 0 0 30px var(--terminal-green);
-        }
-
-        /* =========================================================
-           3. ESTRUCTURA PRINCIPAL (REPRODUCTOR Y LETRAS)
-           ========================================================= */
-        #main-container {
-            position: relative;
-            z-index: 10;
+            background: #0a0a0a;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            width: 100%;
-            padding: 20px;
-            opacity: 0; /* Oculto inicialmente */
-            transition: opacity 3s ease-in-out;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
         }
 
-        /* Cabecera: Nombre de la canción */
-        #header {
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .welcome-title {
+            font-size: clamp(2rem, 8vw, 5rem);
+            color: #7CFF7C;
+            text-shadow: 0 0 20px #7CFF7C, 0 0 40px #7CFF7C;
+            margin-bottom: 2rem;
             text-align: center;
-            font-size: 0.9rem;
-            color: var(--terminal-green);
-            opacity: 0.8;
             letter-spacing: 3px;
-            margin-top: 10px;
-            text-transform: uppercase;
-            text-shadow: var(--glow-green);
-            flex-shrink: 0;
+            font-weight: bold;
         }
 
-        /* Contenedor del texto ASCII gigante */
-        #ascii-container {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        #ascii-art {
-            color: var(--terminal-green);
-            text-shadow: var(--glow-green);
-            white-space: pre;
-            font-size: 1vw; /* Se ajustará dinámicamente con JS para ser responsive */
-            line-height: 1.2;
+        .welcome-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #ffffff;
+            margin-bottom: 3rem;
             text-align: center;
+            opacity: 0.8;
+            letter-spacing: 2px;
         }
 
-        /* Contenedor de letras (Karaoke/Typewriter) */
-        #lyrics-container {
-            height: 40%;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding-bottom: 40px;
-            overflow: hidden;
+        .start-button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 2px solid #7CFF7C;
+            color: #7CFF7C;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px #7CFF7C;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Gradiente para difuminar las letras antiguas hacia arriba */
-        #lyrics-container::before {
+        .start-button::before {
             content: '';
             position: absolute;
             top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #7CFF7C;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .start-button:hover {
+            color: #0a0a0a;
+            box-shadow: 0 0 20px #7CFF7C, inset 0 0 10px #7CFF7C;
+        }
+
+        .start-button:hover::before {
+            left: 0;
+        }
+
+        .start-button:active {
+            transform: scale(0.98);
+        }
+
+        /* EXPERIENCIA PRINCIPAL */
+        .experience-container {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, var(--bg-color), transparent);
-            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0a;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in, visibility 0.8s ease-in;
         }
 
-        .lyric-line {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--text-color);
-            text-shadow: var(--glow-white);
-            opacity: 0.6;
-            transition: opacity 0.5s ease;
-            min-height: 1.5rem;
-            word-wrap: break-word;
-        }
-
-        .lyric-line.active {
+        .experience-container.active {
             opacity: 1;
-            font-size: 1.4rem;
+            visibility: visible;
+        }
+
+        .lyrics-display {
+            text-align: center;
+            max-width: 95vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .ascii-text {
+            font-size: clamp(2rem, 12vw, 8rem);
+            color: #7CFF7C;
+            font-weight: bold;
+            text-shadow: 
+                0 0 10px #7CFF7C,
+                0 0 20px #7CFF7C,
+                0 0 30px #7CFF7C,
+                0 0 40px #00ff00,
+                inset 0 0 10px rgba(124, 255, 124, 0.3);
+            line-height: 1.2;
+            letter-spacing: 2px;
+            animation: fadeInAscii 1s ease-in;
+            word-break: break-word;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes fadeInAscii {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutAscii {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .ascii-text.fade-out {
+            animation: fadeOutAscii 0.8s ease-out;
+        }
+
+        .spanish-translation {
+            font-size: clamp(0.9rem, 3vw, 2rem);
             color: #ffffff;
+            font-weight: 300;
+            letter-spacing: 1px;
+            animation: fadeInSpanish 1.5s ease-in 0.3s both;
+            font-style: italic;
+            opacity: 0.9;
         }
 
-        /* Cursor parpadeante para el efecto Typewriter */
-        .cursor::after {
-            content: '█';
-            display: inline-block;
-            margin-left: 5px;
-            color: var(--terminal-green);
-            animation: blink 1s step-end infinite;
+        @keyframes fadeInSpanish {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 0.9;
+            }
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        .spanish-translation.fade-out {
+            animation: fadeOutSpanish 0.8s ease-out forwards;
         }
 
-        /* Adaptación móvil */
+        @keyframes fadeOutSpanish {
+            from {
+                opacity: 0.9;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* CONTROLES DE MÚSICA */
+        .music-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 60;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .experience-container.active .music-controls {
+            opacity: 0.8;
+        }
+
+        .music-controls:hover {
+            opacity: 1;
+        }
+
+        .control-button {
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid #7CFF7C;
+            color: #7CFF7C;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(124, 255, 124, 0.5);
+        }
+
+        .control-button:hover {
+            box-shadow: 0 0 20px #7CFF7C;
+            transform: scale(1.1);
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            position: fixed;
+            bottom: 6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            height: 4px;
+            background: rgba(124, 255, 124, 0.2);
+            border-radius: 2px;
+            z-index: 60;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            cursor: pointer;
+        }
+
+        .experience-container.active .progress-container {
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #7CFF7C, #00ff00);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .lyric-line { font-size: 1rem; }
-            .lyric-line.active { font-size: 1.2rem; }
-            #header { font-size: 0.7rem; }
-            .start-btn { font-size: 1rem; padding: 10px 20px; }
+            .lyrics-display {
+                gap: 1rem;
+            }
+
+            .music-controls {
+                bottom: 1rem;
+            }
+
+            .progress-container {
+                bottom: 5rem;
+                width: 95%;
+            }
+        }
+
+        /* GLITCH EFFECT OPCIONAL */
+        @keyframes glitch {
+            0% {
+                text-shadow: 
+                    0 0 10px #7CFF7C,
+                    0 0 20px #7CFF7C,
+                    0 0 30px #7CFF7C,
+                    0 0 40px #00ff00;
+            }
+            100% {
+                text-shadow: 
+                    0 0 10px #7CFF7C,
+                    0 0 20px #7CFF7C,
+                    0 0 30px #7CFF7C,
+                    0 0 40px #00ff00,
+                    inset 0 0 10px rgba(124, 255, 124, 0.5);
+            }
         }
     </style>
 </head>
 <body>
-
-    <audio id="bg-audio" src="tu_archivo_de_audio.mp3"></audio>
-
-    <canvas id="particles-canvas"></canvas>
-
-    <div id="welcome-screen">
-        <button class="start-btn" id="start-btn">Iniciar Experiencia</button>
+    <!-- PANTALLA DE INICIO -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <h1 class="welcome-title">▌ SYMPHONIA ▐</h1>
+        <p class="welcome-subtitle">Una experiencia musical inmersiva</p>
+        <button class="start-button" id="startBtn">INICIAR EXPERIENCIA</button>
     </div>
 
-    <div id="main-container">
-        <div id="header">▶ REPRODUCIENDO: Cornfield Chase - Hans Zimmer</div>
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="experience-container" id="experienceContainer">
+        <div class="particle-container" id="particleContainer"></div>
         
-        <div id="ascii-container">
-            <pre id="ascii-art"></pre>
+        <div class="lyrics-display" id="lyricsDisplay">
+            <div class="ascii-text" id="asciiText"></div>
+            <div class="spanish-translation" id="spanishText"></div>
         </div>
 
-        <div id="lyrics-container" id="lyrics-box">
-            </div>
+        <!-- CONTROLES INFERIORES -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="music-controls">
+            <button class="control-button" id="playPauseBtn" title="Reproducir/Pausar">▶</button>
+            <button class="control-button" id="resetBtn" title="Reiniciar">⟲</button>
+        </div>
     </div>
 
+    <!-- ========================================
+         CAMBIAR AQUÍ TU CANCIÓN
+         ======================================== -->
+    <audio id="audioPlayer">
+        <source src="tu-cancion.mp3" type="audio/mpeg">
+        Tu navegador no soporta reproducción de audio.
+    </audio>
+
     <script>
-        /* =========================================================
-           1. ZONA DE PERSONALIZACIÓN
-           ========================================================= */
-
-        // Velocidad de escritura (milisegundos por letra)
-        const TYPE_SPEED = 60; 
-
-        // Frases ASCII. El sistema rotará entre estas frases cada cierto tiempo.
-        // Mantenlo corto para que se vea bien en móviles.
-        const asciiPhrases = [
-            "AMOR",
-            "ESTRELLAS",
-            "SIEMPRE"
-        ];
-        let currentAsciiIndex = 0;
-
-        // LETRAS SINCRONIZADAS
-        // time: segundo exacto donde inicia la frase.
-        // text: el texto que se escribirá.
-        const lyricsData = [
-            { time: 1.0, text: "> Inicializando sistema..." },
-            { time: 4.0, text: "> Estableciendo conexión segura..." },
-            { time: 8.0, text: "A través del tiempo y la distancia," },
-            { time: 13.0, text: "hay mensajes que cruzan galaxias enteras." },
-            { time: 18.0, text: "Hoy quiero decirte algo importante." },
-            { time: 24.0, text: "Eres mi constelación favorita," },
-            { time: 30.0, text: "el lugar donde siempre quiero volver." }
-        ];
-
-        /* =========================================================
-           2. SISTEMA DE GENERACIÓN ASCII (MINIMALISTA)
-           ========================================================= */
-        // Diccionario básico de 5x5 para generar el ASCII dinámicamente
-        const font5x5 = {
-            'A': ["  #  "," # # ","#####","#   #","#   #"],
-            'E': ["#####","#    ","#####","#    ","#####"],
-            'I': [" ### ","  #  ","  #  ","  #  "," ### "],
-            'L': ["#    ","#    ","#    ","#    ","#####"],
-            'M': ["#   #","## ##","# # #","#   #","#   #"],
-            'O': [" ### ","#   #","#   #","#   #"," ### "],
-            'R': ["#### ","#   #","#### ","#  # ","#   #"],
-            'S': [" ####","#    "," ### ","    #","#### "],
-            'T': ["#####","  #  ","  #  ","  #  ","  #  "],
-            ' ': ["     ","     ","     ","     ","     "]
-        };
-
-        // Genera el texto ASCII y lo adapta a la pantalla
-        function generateAscii(text) {
-            text = text.toUpperCase();
-            let result = ["", "", "", "", ""];
-            for (let char of text) {
-                let letter = font5x5[char] || font5x5[' ']; // Espacio si no existe
-                for (let i = 0; i < 5; i++) {
-                    // Reemplazamos los # por un bloque sólido de terminal
-                    result[i] += letter[i].replace(/#/g, '█') + "  "; 
-                }
+        // ========================================
+        // CONFIGURACIÓN DE LETRAS - EDITA AQUÍ
+        // ========================================
+        const lyrics = [
+            {
+                time: 0,
+                ascii: "DANCE\nWITH ME",
+                spanish: "Baila conmigo"
+            },
+            {
+                time: 4,
+                ascii: "I'LL SING\nTO YOU",
+                spanish: "Y te cantaré"
+            },
+            {
+                time: 8,
+                ascii: "A\nSYMPHONY",
+                spanish: "Una sinfonía"
+            },
+            {
+                time: 12,
+                ascii: "WON'T YOU\nKISS ME?",
+                spanish: "¿No me besarás?"
+            },
+            {
+                time: 16,
+                ascii: "SHUT ME UP\nPLEASE",
+                spanish: "Cállame por favor"
+            },
+            {
+                time: 20,
+                ascii: "SHE'S A\nGODDESS",
+                spanish: "Es una diosa"
+            },
+            {
+                time: 24,
+                ascii: "A WISH FROM\nTHE STARS",
+                spanish: "Un deseo de las estrellas"
+            },
+            {
+                time: 28,
+                ascii: "IN MY\nHEART",
+                spanish: "En mi corazón"
             }
-            return result.join("\n");
-        }
+        ];
 
-        function updateAsciiDisplay() {
-            const asciiElement = document.getElementById('ascii-art');
-            asciiElement.textContent = generateAscii(asciiPhrases[currentAsciiIndex]);
-            
-            // Auto-ajuste responsivo para que no se salga de la pantalla
-            const containerWidth = document.getElementById('ascii-container').clientWidth;
-            const textLength = asciiPhrases[currentAsciiIndex].length * 7; // aprox caracteres
-            // Ajustamos el tamaño de la fuente basado en el ancho disponible
-            let fontSize = containerWidth / textLength;
-            if(fontSize > 30) fontSize = 30; // Tamaño máximo
-            asciiElement.style.fontSize = `${fontSize}px`;
-        }
+        // ========================================
+        // ELEMENTOS DEL DOM
+        // ========================================
+        const audio = document.getElementById('audioPlayer');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const experienceContainer = document.getElementById('experienceContainer');
+        const startBtn = document.getElementById('startBtn');
+        const asciiText = document.getElementById('asciiText');
+        const spanishText = document.getElementById('spanishText');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const particleContainer = document.getElementById('particleContainer');
 
-        // Rotar palabras ASCII cada 10 segundos
-        setInterval(() => {
-            currentAsciiIndex = (currentAsciiIndex + 1) % asciiPhrases.length;
-            updateAsciiDisplay();
-        }, 10000);
+        // ========================================
+        // VARIABLES DE ESTADO
+        // ========================================
+        let currentLyricIndex = -1;
+        let isPlaying = false;
 
-
-        /* =========================================================
-           3. LÓGICA PRINCIPAL Y AUDIO
-           ========================================================= */
-        const startBtn = document.getElementById('start-btn');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const mainContainer = document.getElementById('main-container');
-        const audio = document.getElementById('bg-audio');
-        const lyricsContainer = document.getElementById('lyrics-container');
-
-        let currentLyricIndex = 0;
-        let isTyping = false;
-
-        startBtn.addEventListener('click', () => {
-            // Iniciar Audio
-            audio.play().catch(e => console.log("Error reproduciendo audio: ", e));
-            
-            // Transición de pantallas
-            welcomeScreen.style.opacity = '0';
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-                mainContainer.style.opacity = '1';
-                updateAsciiDisplay(); // Mostrar primer ASCII
-                requestAnimationFrame(syncLyrics); // Iniciar sincronización
-            }, 2000);
-        });
-
-        // Evento de redimensionamiento para recalcular el tamaño del ASCII
-        window.addEventListener('resize', updateAsciiDisplay);
-
-        /* =========================================================
-           4. SINCRONIZACIÓN DE LETRAS Y EFECTO TYPEWRITER
-           ========================================================= */
-        function syncLyrics() {
-            if (currentLyricIndex < lyricsData.length) {
-                const nextLyric = lyricsData[currentLyricIndex];
-                
-                // Si el tiempo actual del audio alcanza el tiempo de la letra
-                if (audio.currentTime >= nextLyric.time && !isTyping) {
-                    typeWriterEffect(nextLyric.text);
-                    currentLyricIndex++;
-                }
+        // ========================================
+        // CREAR PARTÍCULAS PARA EL FONDO
+        // ========================================
+        function createParticles() {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = (3 + Math.random() * 4) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                particleContainer.appendChild(particle);
             }
-            requestAnimationFrame(syncLyrics); // Bucle optimizado de verificación
         }
 
-        function typeWriterEffect(text) {
-            isTyping = true;
-            
-            // Quitar cursor de la línea anterior y atenuarla
-            const prevLines = document.querySelectorAll('.lyric-line');
-            prevLines.forEach(line => {
-                line.classList.remove('cursor', 'active');
-            });
+        // ========================================
+        // INICIALIZAR PARTÍCULAS
+        // ========================================
+        createParticles();
 
-            // Crear nueva línea
-            const lineDiv = document.createElement('div');
-            lineDiv.className = 'lyric-line active cursor';
-            lyricsContainer.appendChild(lineDiv);
+        // ========================================
+        // FUNCIÓN PARA ACTUALIZAR LETRAS
+        // ========================================
+        function updateLyrics() {
+            const currentTime = audio.currentTime;
+            let nextLyricIndex = -1;
 
-            let charIndex = 0;
-
-            function typeChar() {
-                if (charIndex < text.length) {
-                    lineDiv.textContent += text.charAt(charIndex);
-                    charIndex++;
-                    
-                    // Auto-scroll para mantener siempre visible la última línea
-                    lyricsContainer.scrollTop = lyricsContainer.scrollHeight;
-                    
-                    setTimeout(typeChar, TYPE_SPEED);
+            // Encontrar la siguiente letra basada en el tiempo actual
+            for (let i = 0; i < lyrics.length; i++) {
+                if (currentTime >= lyrics[i].time) {
+                    nextLyricIndex = i;
                 } else {
-                    isTyping = false;
+                    break;
                 }
             }
-            typeChar();
+
+            // Si cambió la letra actual
+            if (nextLyricIndex !== currentLyricIndex) {
+                // Fade out de la letra anterior
+                if (currentLyricIndex !== -1) {
+                    asciiText.classList.add('fade-out');
+                    spanishText.classList.add('fade-out');
+                }
+
+                currentLyricIndex = nextLyricIndex;
+
+                // Esperar a que termine la animación de fade out
+                setTimeout(() => {
+                    if (currentLyricIndex !== -1) {
+                        // Mostrar nueva letra
+                        asciiText.textContent = lyrics[currentLyricIndex].ascii;
+                        spanishText.textContent = lyrics[currentLyricIndex].spanish;
+
+                        // Remover animación de fade out y añadir fade in
+                        asciiText.classList.remove('fade-out');
+                        spanishText.classList.remove('fade-out');
+                    }
+                }, 300);
+            }
         }
 
-        /* =========================================================
-           5. SISTEMA DE PARTÍCULAS (FONDO CINEMATOGRÁFICO)
-           ========================================================= */
-        const canvas = document.getElementById('particles-canvas');
-        const ctx = canvas.getContext('2d');
-        let particlesArray = [];
+        // ========================================
+        // ACTUALIZAR PROGRESO DE LA CANCIÓN
+        // ========================================
+        function updateProgress() {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = progress + '%';
+        }
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        // ========================================
+        // EVENTOS DE AUDIO
+        // ========================================
+        audio.addEventListener('timeupdate', () => {
+            updateLyrics();
+            updateProgress();
         });
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.5 + 0.5;
-                this.speedY = Math.random() * -0.5 - 0.1; // Suben lentamente
-                this.opacity = Math.random() * 0.5 + 0.1;
+        audio.addEventListener('ended', () => {
+            isPlaying = false;
+            playPauseBtn.textContent = '▶';
+            currentLyricIndex = -1;
+            asciiText.textContent = '';
+            spanishText.textContent = '';
+        });
+
+        // ========================================
+        // BOTÓN INICIO
+        // ========================================
+        startBtn.addEventListener('click', () => {
+            welcomeScreen.classList.add('hidden');
+            experienceContainer.classList.add('active');
+            
+            setTimeout(() => {
+                audio.play();
+                isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+            }, 800);
+        });
+
+        // ========================================
+        // BOTÓN PLAY/PAUSE
+        // ========================================
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                playPauseBtn.textContent = '▶';
+            } else {
+                audio.play();
+                playPauseBtn.textContent = '⏸';
             }
-            update() {
-                this.y += this.speedY;
-                // Reiniciar en la parte inferior si salen de la pantalla
-                if (this.y < 0) {
-                    this.y = canvas.height;
-                    this.x = Math.random() * canvas.width;
+            isPlaying = !isPlaying;
+        });
+
+        // ========================================
+        // BOTÓN RESET
+        // ========================================
+        resetBtn.addEventListener('click', () => {
+            audio.currentTime = 0;
+            currentLyricIndex = -1;
+            asciiText.textContent = '';
+            spanishText.textContent = '';
+            if (isPlaying) {
+                audio.play();
+            }
+        });
+
+        // ========================================
+        // CLICK EN LA BARRA DE PROGRESO
+        // ========================================
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // ========================================
+        // EFECTO GLITCH SUAVE EN TRANSICIONES
+        // ========================================
+        setInterval(() => {
+            if (isPlaying && currentLyricIndex !== -1) {
+                // Efecto sutil de brillo pulsante
+                if (Math.random() > 0.98) {
+                    asciiText.style.opacity = 0.95;
+                    setTimeout(() => {
+                        asciiText.style.opacity = 1;
+                    }, 50);
                 }
             }
-            draw() {
-                ctx.fillStyle = `rgba(124, 255, 124, ${this.opacity})`; // Tono verdoso
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            particlesArray = [];
-            // Ajustar cantidad de partículas según el tamaño de la pantalla
-            const numberOfParticles = (canvas.width * canvas.height) / 9000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        initParticles();
-        animateParticles();
-
+        }, 500);
     </script>
 </body>
 </html>
